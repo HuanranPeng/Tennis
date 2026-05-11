@@ -1,0 +1,1 @@
+import{_ as o}from"./_plugin-vue_export-helper.DlAUqK2U.js";import{o as e,c}from"./runtime-core.esm-bundler.BM0OPItf.js";const r={},t={d:"M2.4 24L0 21.6L9.6 12L0 2.4L2.4 0L12 9.6L21.6 0L24 2.4L14.4 12L24 21.6L21.6 24L12 14.4L2.4 24Z",fill:"currentColor"};function n(s,L){return e(),c("path",t)}const f=o(r,[["render",n]]);export{f as default};
