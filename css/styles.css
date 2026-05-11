@@ -661,11 +661,95 @@ h6 {
   overflow-x: hidden;
 }
 
+body.nav-open {
+  overflow: hidden;
+}
+
 .gen-layout-inner {
   max-width: var(--max);
   margin: 0 auto;
   padding-left: 1.25rem;
   padding-right: 1.25rem;
+}
+
+/* Canvas layout (Zyro editor coordinates from build_offline.py) */
+.gen-layout-inner--canvas {
+  position: relative;
+  width: 100%;
+  max-width: min(calc(var(--cw) * 1px + 2.5rem), var(--max));
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  box-sizing: border-box;
+}
+
+.gen-canvas-item {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  left: calc(var(--d-l) / var(--cw) * 100%);
+  top: calc(var(--d-t) / var(--ch) * 100%);
+  width: calc(var(--d-w) / var(--cw) * 100%);
+  height: calc(var(--d-h) * 1px);
+  overflow: visible;
+}
+
+.gen-canvas-item--fluid {
+  height: auto;
+  min-height: calc(var(--d-h) * 1px);
+}
+
+.gen-canvas-item .gen-img {
+  height: 100%;
+  margin: 0;
+}
+
+.gen-canvas-item .gen-img img {
+  width: 100%;
+  height: 100%;
+  min-height: 140px;
+  object-fit: cover;
+}
+
+.gen-canvas-item .gallery-masonry {
+  min-height: inherit;
+}
+
+.hero__content--canvas {
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  text-align: left;
+  align-self: stretch;
+}
+
+.hero.gen-hero.hero--canvas {
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+@media (max-width: 920px) {
+  .gen-layout-inner--canvas {
+    min-height: calc(var(--mch) * 1px) !important;
+    max-width: 100%;
+  }
+
+  .gen-canvas-item {
+    left: calc(var(--m-l) / var(--mcw) * 100%);
+    top: calc(var(--m-t) / var(--mch) * 100%);
+    width: calc(var(--m-w) / var(--mcw) * 100%);
+    height: calc(var(--m-h) * 1px);
+  }
+
+  .gen-canvas-item--fluid {
+    height: auto;
+    min-height: max(calc(var(--m-h) * 1px), 3rem);
+  }
 }
 
 .gen-layout .gen-text {
@@ -695,6 +779,12 @@ h6 {
 .gen-footer .gen-layout-inner {
   display: grid;
   gap: 2rem;
+  padding-top: 2.5rem;
+  padding-bottom: 2rem;
+}
+
+.gen-footer .gen-layout-inner--canvas {
+  display: block;
   padding-top: 2.5rem;
   padding-bottom: 2rem;
 }
