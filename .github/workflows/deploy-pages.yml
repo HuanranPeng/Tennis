@@ -1,10 +1,8 @@
-# Deploys the static HTML site to GitHub Pages on every push to main.
-#
-# First-time setup (once per repo):
-#   Settings → Pages → Build and deployment → Source: "GitHub Actions"
-#
-# Site URL: https://<username>.github.io/Tennis/
-name: Deploy to GitHub Pages
+# Pushes only the static site files to branch `gh-pages`.
+# GitHub Pages: Settings → Pages → Source = "Deploy from a branch"
+#   Branch = gh-pages, folder = / (root)
+# URL: https://huanranpeng.github.io/Tennis/
+name: Deploy to GitHub Pages (gh-pages branch)
 
 on:
   push:
@@ -12,38 +10,35 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (with Git LFS for images / video / fonts)
+      - name: Checkout (with Git LFS)
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - name: Build site folder
+        run: |
+          set -e
+          rm -rf _site
+          mkdir -p _site
+          shopt -s nullglob
+          cp -r assets css _site/
+          for f in *.html; do cp "$f" _site/; done
+          touch _site/.nojekyll
+          ls -la _site
 
-      - name: Upload site artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Push to gh-pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          path: .
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          branch: gh-pages
+          folder: _site
+          clean: true
