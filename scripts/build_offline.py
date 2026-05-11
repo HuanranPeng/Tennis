@@ -737,6 +737,7 @@ def rewrite_ssr_html(html: str) -> str:
     # as file:// or vscode-webview often blocks ES modules, so nothing appears.
     _anim_fallback = (
         '<script>(function(){var p=location.protocol,s=location.search;'
+        'if(/[?&]anim=1(?:&|$)/.test(s))document.documentElement.classList.add("respect-zyro-animations");'
         'if(p==="file:"||p==="vscode-webview:"||/[?&]static=1(?:&|$)/.test(s))'
         'document.documentElement.classList.add("no-entry-anim");})();</script>'
         '<link rel="stylesheet" href="assets/astro/animation-fallback.css" />'

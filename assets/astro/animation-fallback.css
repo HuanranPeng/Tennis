@@ -1,19 +1,25 @@
-/* Main column: Zyro keeps .transition at opacity:0 until Vue sets data-animation-state.
-   If hydration fails or stalls (common with static mirrors), the body stays blank.
-   Scoped to .page__blocks so the header/hero chrome is unchanged; SSR text/images show. */
-.page__blocks .transition.transition--slide:not(.transition--root-hidden),
-.page__blocks .transition.transition--fade:not(.transition--root-hidden),
-.page__blocks .transition.transition--scale:not(.transition--root-hidden) {
+/*
+  Main column: Zyro uses opacity:0 on .transition until Vue sets data-animation-state.
+  Without this, failed hydration leaves a blank page. These rules intentionally match
+  the *end* state of entry animations (opacity 1, no offset), so layout matches the
+  live site after motion finishes — but micro-motion and some JS-driven tweaks differ.
+
+  Append ?anim=1 to the URL to skip this block and try full Zyro/Vue behavior (closer
+  motion; if scripts fail, content may stay invisible until refresh without ?anim=1).
+*/
+html:not(.respect-zyro-animations) .page__blocks .transition.transition--slide:not(.transition--root-hidden),
+html:not(.respect-zyro-animations) .page__blocks .transition.transition--fade:not(.transition--root-hidden),
+html:not(.respect-zyro-animations) .page__blocks .transition.transition--scale:not(.transition--root-hidden) {
   opacity: 1 !important;
   transform: none !important;
 }
 
-.page__blocks .transition.transition--slide.transition--root-hidden [data-animation-role="block-element"],
-.page__blocks .transition.transition--slide.transition--root-hidden [data-animation-role="image"],
-.page__blocks .transition.transition--fade.transition--root-hidden [data-animation-role="block-element"],
-.page__blocks .transition.transition--fade.transition--root-hidden [data-animation-role="image"],
-.page__blocks .transition.transition--scale.transition--root-hidden [data-animation-role="block-element"],
-.page__blocks .transition.transition--scale.transition--root-hidden [data-animation-role="image"] {
+html:not(.respect-zyro-animations) .page__blocks .transition.transition--slide.transition--root-hidden [data-animation-role="block-element"],
+html:not(.respect-zyro-animations) .page__blocks .transition.transition--slide.transition--root-hidden [data-animation-role="image"],
+html:not(.respect-zyro-animations) .page__blocks .transition.transition--fade.transition--root-hidden [data-animation-role="block-element"],
+html:not(.respect-zyro-animations) .page__blocks .transition.transition--fade.transition--root-hidden [data-animation-role="image"],
+html:not(.respect-zyro-animations) .page__blocks .transition.transition--scale.transition--root-hidden [data-animation-role="block-element"],
+html:not(.respect-zyro-animations) .page__blocks .transition.transition--scale.transition--root-hidden [data-animation-role="image"] {
   opacity: 1 !important;
   transform: none !important;
 }
