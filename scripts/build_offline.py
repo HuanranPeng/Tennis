@@ -741,6 +741,7 @@ def rewrite_ssr_html(html: str) -> str:
         'if(p==="file:"||p==="vscode-webview:"||/[?&]static=1(?:&|$)/.test(s))'
         'document.documentElement.classList.add("no-entry-anim");})();</script>'
         '<link rel="stylesheet" href="assets/astro/animation-fallback.css" />'
+        '<script src="assets/astro/header-scroll-polyfill.js" defer></script>'
     )
     if "animation-fallback.css" not in html:
         html = html.replace("</head>", _anim_fallback + "</head>", 1)

@@ -59,3 +59,14 @@ html.no-entry-anim .transition.transition--scale.transition--root-hidden [data-a
     transform: none !important;
   }
 }
+
+/* Sticky nav after scroll: Zyro uses .sticky-trigger + Vue (isWithShadow, opaque background).
+   header-scroll-polyfill.js sets html[data-header-scrolled] when the sentinel leaves the viewport.
+   :not(.block-header--with-shadow) avoids duplicating box-shadow when Vue already applied it. */
+html[data-header-scrolled] .top-blocks .block-header .background {
+  --background-color: rgb(33, 30, 27) !important;
+}
+
+html[data-header-scrolled] .top-blocks .block-header:not(.block-header--with-shadow) {
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.102);
+}
