@@ -745,9 +745,19 @@ def rewrite_ssr_html(html: str) -> str:
     if "animation-fallback.css" not in html:
         html = html.replace("</head>", _anim_fallback + "</head>", 1)
 
-    _header_poly = '<script src="assets/astro/header-scroll-polyfill.js"></script>'
+    _header_poly = (
+        '<script src="assets/astro/header-scroll-polyfill.js"></script>'
+        '<script src="assets/astro/mobile-nav-polyfill.js"></script>'
+    )
     if "header-scroll-polyfill.js" not in html:
         html = html.replace("</body>", _header_poly + "</body>", 1)
+    elif "mobile-nav-polyfill.js" not in html:
+        html = html.replace(
+            '<script src="assets/astro/header-scroll-polyfill.js"></script>',
+            '<script src="assets/astro/header-scroll-polyfill.js"></script>'
+            '<script src="assets/astro/mobile-nav-polyfill.js"></script>',
+            1,
+        )
 
     return html
 
