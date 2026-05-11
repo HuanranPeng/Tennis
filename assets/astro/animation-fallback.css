@@ -74,3 +74,36 @@ html[data-header-scrolled] .top-blocks .block-header:not(.block-header--with-sha
 html[data-header-scrolled] header.block-header:not(.block-header--with-shadow) {
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.102) !important;
 }
+
+/* Mobile nav: keep dropdown above page blocks; avoid clipping (see mobile-nav-polyfill.js) */
+@media screen and (max-width: 920px) {
+  button.block-header__hamburger-menu {
+    touch-action: manipulation;
+  }
+
+  .block-header-layout-mobile {
+    position: relative;
+    z-index: 2000 !important;
+  }
+
+  .block-header-layout-mobile__dropdown--open {
+    z-index: 2001 !important;
+  }
+
+  body.zyro-mobile-nav-open .top-blocks--sticky,
+  body.zyro-mobile-nav-open header.block-header,
+  html.zyro-mobile-nav-open .top-blocks--sticky,
+  html.zyro-mobile-nav-open header.block-header {
+    overflow: visible !important;
+  }
+
+  html.zyro-mobile-nav-open,
+  body.zyro-mobile-nav-open {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .block-header-layout-mobile__dropdown--open {
+    -webkit-overflow-scrolling: touch;
+  }
+}
