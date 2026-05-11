@@ -1,0 +1,37 @@
+/* Entry animations default to opacity:0 until JS sets data-animation-state.
+   When the page is opened as file:// or in some embedded previews, ES modules
+   may not run, so nothing ever becomes visible. html.no-entry-anim restores SSR. */
+html.no-entry-anim .transition.transition--slide:not(.transition--root-hidden),
+html.no-entry-anim .transition.transition--fade:not(.transition--root-hidden),
+html.no-entry-anim .transition.transition--scale:not(.transition--root-hidden) {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+html.no-entry-anim .transition.transition--slide.transition--root-hidden [data-animation-role="block-element"],
+html.no-entry-anim .transition.transition--slide.transition--root-hidden [data-animation-role="image"],
+html.no-entry-anim .transition.transition--fade.transition--root-hidden [data-animation-role="block-element"],
+html.no-entry-anim .transition.transition--fade.transition--root-hidden [data-animation-role="image"],
+html.no-entry-anim .transition.transition--scale.transition--root-hidden [data-animation-role="block-element"],
+html.no-entry-anim .transition.transition--scale.transition--root-hidden [data-animation-role="image"] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transition.transition--slide:not(.transition--root-hidden),
+  .transition.transition--fade:not(.transition--root-hidden),
+  .transition.transition--scale:not(.transition--root-hidden) {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .transition.transition--slide.transition--root-hidden [data-animation-role="block-element"],
+  .transition.transition--slide.transition--root-hidden [data-animation-role="image"],
+  .transition.transition--fade.transition--root-hidden [data-animation-role="block-element"],
+  .transition.transition--fade.transition--root-hidden [data-animation-role="image"],
+  .transition.transition--scale.transition--root-hidden [data-animation-role="block-element"],
+  .transition.transition--scale.transition--root-hidden [data-animation-role="image"] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

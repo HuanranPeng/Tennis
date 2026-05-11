@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """
-Fetch ultraperformanceacademy.net, merge Hostinger wire-format pageData from
-all routes, download Zyro images + hero video/poster + Google Fonts (latin
-woff2), and regenerate static HTML at repo root.
+Fetch ultraperformanceacademy.net and produce a static mirror that matches the
+live Hostinger/Zyro SSR output: full HTML + Astro CSS/JS bundles + local assets.
+
+Re-run after site updates: python3 scripts/build_offline.py
 """
 from __future__ import annotations
 
+import hashlib
 import html as html_lib
 import json
 import re
 import ssl
 import sys
 import urllib.request
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -20,6 +23,9 @@ CACHE = Path(__file__).resolve().parent / ".cache"
 ASSETS_SITE = ROOT / "assets" / "site"
 ASSETS_MEDIA = ROOT / "assets" / "media"
 ASSETS_FONTS = ROOT / "assets" / "fonts"
+ASSETS_ASTRO = ROOT / "assets" / "astro"
+ASTRO_WEB_PREFIX = "/_astro-1777938346575/"
+ASTRO_REL = "assets/astro/"
 
 BASE = "https://ultraperformanceacademy.net"
 CDN = "https://assets.zyrosite.com/ALp7EGXM9ls0JPOx"
@@ -292,7 +298,11 @@ def render_element(elid: str, ud: dict) -> str:
             )
         return '<div class="gallery-masonry gen-gallery">' + "".join(figs) + "</div>"
     if typ == "GridShape":
-        return ""
+        col = el.get("color") or "transparent"
+        return (
+            f'<div class="gen-shape" style="background-color:{html_lib.escape(col)};'
+            f'border-radius:12px;height:100%;min-height:100%"></div>'
+        )
     if typ == "GridSocialIcons":
         return render_social(el)
     if typ == "GridForm":
@@ -355,24 +365,128 @@ def block_background_style(bg: dict) -> str:
     return ";".join(parts)
 
 
+def canvas_extents(components: list, ud: dict, box_key: str) -> tuple[int, int]:
+    """Bounding box size from editor coordinates (desktop or mobile)."""
+    max_r = 1
+    max_b = 1
+    for cid in components:
+        el = ud["elements"].get(cid)
+        if not el:
+            continue
+        box = el.get(box_key) or {}
+        if "left" not in box and "width" not in box:
+            continue
+        l = int(box.get("left") or 0)
+        t = int(box.get("top") or 0)
+        w = int(box.get("width") or 0)
+        h = int(box.get("height") or 0)
+        max_r = max(max_r, l + w)
+        max_b = max(max_b, t + h)
+    return max_r, max_b
+
+
+def block_has_canvas_positions(block: dict, ud: dict) -> bool:
+    for cid in block.get("components", []) or []:
+        el = ud["elements"].get(cid)
+        if not el:
+            continue
+        d = el.get("desktop")
+        if isinstance(d, dict) and "left" in d and isinstance(d.get("width"), (int, float)):
+            return True
+    return False
+
+
+def wrap_canvas_item(fragment: str, el: dict, cw: int, ch: int, mcw: int, mch: int) -> str:
+    if not fragment:
+        return ""
+    d = el.get("desktop") or {}
+    if not isinstance(d, dict) or "left" not in d:
+        return fragment
+    m = el.get("mobile") or {}
+    dl = int(d.get("left") or 0)
+    dt = int(d.get("top") or 0)
+    dwi = int(d.get("width") or 1)
+    dhgt = int(d.get("height") or 0)
+    ml = int(m.get("left", dl) if "left" in m else dl)
+    mt = int(m.get("top", dt) if "top" in m else dt)
+    mwi = int(m.get("width", dwi) if m.get("width") else dwi) or 1
+    mhgt = int(m.get("height", dhgt) if m.get("height") is not None else dhgt)
+
+    typ = el.get("type")
+    fluid_height = typ in (
+        "GridTextBox",
+        "GridGallery",
+        "GridSocialIcons",
+        "GridForm",
+        "GridMap",
+        "GridButton",
+    )
+    extra = " gen-canvas-item--fluid" if fluid_height else ""
+    vs = (
+        f"--d-l:{dl};--d-t:{dt};--d-w:{max(dwi, 1)};--d-h:{dhgt};"
+        f"--m-l:{ml};--m-t:{mt};--m-w:{max(mwi, 1)};--m-h:{mhgt};"
+        f"--cw:{cw};--ch:{ch};--mcw:{mcw};--mch:{mch};"
+    )
+    return f'<div class="gen-canvas-item{extra}" style="{vs}">{fragment}</div>'
+
+
+def render_block_inner_canvas(block: dict, ud: dict, outer_class: str | None = None) -> str:
+    components = block.get("components", []) or []
+    dw, dh = canvas_extents(components, ud, "desktop")
+    mw, mh = canvas_extents(components, ud, "mobile")
+    desk_min = int((block.get("desktop") or {}).get("minHeight") or 0)
+    mob_min = int((block.get("mobile") or {}).get("minHeight") or 0)
+    ch = max(dh, desk_min, 1)
+    mch = max(mh, mob_min, 1)
+    mcw = max(mw, 1)
+    cw = max(dw, 1)
+
+    parts = []
+    for cid in components:
+        el = ud["elements"].get(cid)
+        inner = render_element(cid, ud)
+        if el:
+            parts.append(wrap_canvas_item(inner, el, cw, ch, mcw, mch))
+        else:
+            parts.append(inner)
+    inner_html = "".join(parts)
+    min_styles = (
+        f"--cw:{cw};--ch:{ch};--mcw:{mcw};--mch:{mch};"
+        f"min-height:{ch}px;--canvas-min-mobile:{mch}px"
+    )
+    cls = outer_class or "gen-layout-inner gen-layout-inner--canvas"
+    return f'<div class="{cls}" style="{min_styles}">{inner_html}</div>'
+
+
 def render_block_layout(bid: str, ud: dict) -> str:
     block = ud["blocks"].get(bid)
     if not block or block.get("type") != "BlockLayout":
         return ""
     bg = block.get("background") or {}
     cur = bg.get("current")
-    inner_html = "".join(render_element(cid, ud) for cid in block.get("components", []) or [])
+    use_canvas = block_has_canvas_positions(block, ud)
+    comps = block.get("components", []) or []
+    flat_inner = "".join(render_element(cid, ud) for cid in comps)
 
     if cur == "video":
         ov = overlay_style(bg)
-        return f"""<section class="hero gen-hero">
+        hero_cls = "hero gen-hero" + (" hero--canvas" if use_canvas else "")
+        if use_canvas:
+            inner = render_block_inner_canvas(
+                block,
+                ud,
+                outer_class="hero__content gen-layout-inner--canvas hero__content--canvas",
+            )
+        else:
+            inner = f'<div class="hero__content">{flat_inner}</div>'
+        return f"""<section class="{hero_cls}">
   <div class="hero__media">
     <video autoplay muted loop playsinline poster="assets/media/hero-poster.jpg">
       <source src="assets/media/hero.mp4" type="video/mp4" />
     </video>
     <div class="hero__overlay" style="{ov}"></div>
   </div>
-  <div class="hero__content">{inner_html}</div>
+  {inner}
 </section>"""
 
     style = block_background_style(bg)
@@ -382,7 +496,12 @@ def render_block_layout(bid: str, ud: dict) -> str:
     pad = layout_padding(block)
     if pad:
         style = f"{style};padding:{pad}" if style else f"padding:{pad}"
-    return f'<section class="gen-layout" style="{html_lib.escape(style)}"><div class="gen-layout-inner">{inner_html}</div></section>'
+    inner_wrapped = (
+        render_block_inner_canvas(block, ud)
+        if use_canvas
+        else f'<div class="gen-layout-inner">{flat_inner}</div>'
+    )
+    return f'<section class="gen-layout" style="{html_lib.escape(style)}">{inner_wrapped}</section>'
 
 
 def render_page(slug: str, ud: dict) -> str:
@@ -450,15 +569,25 @@ def shell(title: str, desc: str, slug: str, body: str, ud: dict) -> str:
         var btn = document.getElementById("nav-toggle");
         var nav = document.getElementById("site-nav");
         if (!btn || !nav) return;
-        btn.addEventListener("click", function () {{
-          var open = nav.classList.toggle("is-open");
+        function setOpen(open) {{
+          nav.classList.toggle("is-open", open);
           btn.setAttribute("aria-expanded", open ? "true" : "false");
+          btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+          document.body.classList.toggle("nav-open", open);
+        }}
+        btn.addEventListener("click", function (e) {{
+          e.stopPropagation();
+          setOpen(!nav.classList.contains("is-open"));
         }});
         nav.querySelectorAll("a").forEach(function (a) {{
-          a.addEventListener("click", function () {{
-            nav.classList.remove("is-open");
-            btn.setAttribute("aria-expanded", "false");
-          }});
+          a.addEventListener("click", function () {{ setOpen(false); }});
+        }});
+        document.addEventListener("click", function () {{
+          if (nav.classList.contains("is-open")) setOpen(false);
+        }});
+        nav.addEventListener("click", function (e) {{ e.stopPropagation(); }});
+        document.addEventListener("keydown", function (e) {{
+          if (e.key === "Escape") setOpen(false);
         }});
       }})();
     </script>
@@ -476,6 +605,178 @@ def download_one(args: tuple[str, str]) -> tuple[str, bool, str]:
         return (dest, True, "")
     except Exception as e:
         return (dest, False, str(e))
+
+
+def collect_astro_seeds_from_html(html: str) -> set[str]:
+    return set(re.findall(r"/_astro-1777938346575/([^\"'\s>]+)", html))
+
+
+def download_astro_bundle() -> list[tuple[str, str]]:
+    ASSETS_ASTRO.mkdir(parents=True, exist_ok=True)
+    seeds: set[str] = set()
+    for _path, fname in URLS:
+        p = CACHE / fname
+        if p.exists():
+            seeds |= collect_astro_seeds_from_html(p.read_text(encoding="utf-8"))
+
+    seen: set[str] = set()
+    q: deque[str] = deque(sorted(seeds))
+    bad: list[tuple[str, str]] = []
+
+    def add_js_deps(text: str) -> None:
+        for pat in (
+            r'from"\./([^"]+)"',
+            r"from'\./([^']+)'",
+            r'import\("\./([^"]+)"',
+            r"import\('\./([^']+)'",
+        ):
+            for m in re.finditer(pat, text):
+                dep = m.group(1)
+                if dep not in seen:
+                    q.append(dep)
+        for m in re.finditer(r'"_astro-1777938346575/([^"]+)"', text):
+            dep = m.group(1)
+            if dep not in seen:
+                q.append(dep)
+
+    while q:
+        name = q.popleft()
+        if name in seen:
+            continue
+        url = BASE + ASTRO_WEB_PREFIX + name
+        dest = ASSETS_ASTRO / name
+        try:
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(fetch_bytes(url))
+        except Exception as e:
+            bad.append((name, str(e)))
+            continue
+        seen.add(name)
+        if name.endswith(".js"):
+            try:
+                add_js_deps(dest.read_text(encoding="utf-8", errors="replace"))
+            except OSError:
+                pass
+
+    return bad
+
+
+def collect_zyro_filenames_from_html(html: str) -> set[str]:
+    found: set[str] = set()
+    for pat in (
+        r"https://assets\.zyrosite\.com/cdn-cgi/image/[^\"'\s<>]+?/ALp7EGXM9ls0JPOx/([^\"'\s<>?&]+)",
+        r"https://assets\.zyrosite\.com/ALp7EGXM9ls0JPOx/([^\"'\s<>?&]+)",
+    ):
+        for m in re.finditer(pat, html):
+            fn = m.group(1).split("?")[0].rstrip("\\")
+            if fn and ".." not in fn:
+                found.add(fn)
+    return found
+
+
+def rewrite_ssr_html(html: str) -> str:
+    html = html.replace(f'href="{ASTRO_WEB_PREFIX}', f'href="{ASTRO_REL}')
+    html = html.replace(f"href='{ASTRO_WEB_PREFIX}", f"href='{ASTRO_REL}")
+    html = html.replace(f'component-url="{ASTRO_WEB_PREFIX}', f'component-url="{ASTRO_REL}')
+    html = html.replace('"/_astro-1777938346575/', f'"{ASTRO_REL}')
+    html = html.replace("'/_astro-1777938346575/", f"'{ASTRO_REL}")
+
+    def zyro_local(m: re.Match[str]) -> str:
+        fn = m.group(1).split("?")[0].rstrip("\\")
+        return f"assets/site/{fn}"
+
+    html = re.sub(
+        r"https://assets\.zyrosite\.com/cdn-cgi/image/[^\"'\s<>]+?/ALp7EGXM9ls0JPOx/([^\"'\s<>?&]+)",
+        zyro_local,
+        html,
+    )
+    html = re.sub(
+        r"https://assets\.zyrosite\.com/ALp7EGXM9ls0JPOx/([^\"'\s<>?&]+)",
+        zyro_local,
+        html,
+    )
+
+    html = re.sub(
+        r"<link[^>]*https://cdn\.zyrosite\.com/u1/google-fonts/font-faces[^>]*>",
+        '<link rel="stylesheet" href="assets/fonts/fonts.css" />',
+        html,
+    )
+
+    html = re.sub(
+        r"https://videos\.pexels\.com/video-files/5740606/[^\"'\s<>]+\.mp4[^\"']*",
+        "assets/media/hero.mp4",
+        html,
+    )
+    html = re.sub(
+        r"https://images\.pexels\.com/videos/5740606/[^\"'\s<>]+",
+        "assets/media/hero-poster.jpg",
+        html,
+    )
+
+    for slug in ("programs", "group-lessons", "summerholiday-camp", "coaches", "contact", "small-group"):
+        fn = SLUG_TO_FILE[slug]
+        html = re.sub(rf'href="/{slug}"', f'href="{fn}"', html)
+        html = re.sub(rf"href='/{slug}'", f"href='{fn}'", html)
+        html = re.sub(
+            rf'href="https://ultraperformanceacademy\.net/{re.escape(slug)}"',
+            f'href="{fn}"',
+            html,
+        )
+        html = re.sub(
+            rf'href="https://ultraperformanceacademy\.net/{re.escape(slug)}/"',
+            f'href="{fn}"',
+            html,
+        )
+    html = re.sub(r'href="https://ultraperformanceacademy\.net/"', 'href="index.html"', html)
+    html = re.sub(r"href='https://ultraperformanceacademy\.net/'", "href='index.html'", html)
+    html = re.sub(r'href="https://ultraperformanceacademy\.net"', 'href="index.html"', html)
+    html = re.sub(r'href="/"', 'href="index.html"', html)
+    html = re.sub(r"href='/'", "href='index.html'", html)
+
+    # Entry animations keep .transition blocks at opacity:0 until JS runs. Opening
+    # as file:// or vscode-webview often blocks ES modules, so nothing appears.
+    _anim_fallback = (
+        '<script>(function(){var p=location.protocol,s=location.search;'
+        'if(p==="file:"||p==="vscode-webview:"||/[?&]static=1(?:&|$)/.test(s))'
+        'document.documentElement.classList.add("no-entry-anim");})();</script>'
+        '<link rel="stylesheet" href="assets/astro/animation-fallback.css" />'
+    )
+    if "animation-fallback.css" not in html:
+        html = html.replace("</head>", _anim_fallback + "</head>", 1)
+
+    return html
+
+
+def collect_unsplash_urls(html: str) -> set[str]:
+    return set(re.findall(r"https://images\.unsplash\.com[^\"'\s<>]+", html))
+
+
+def build_unsplash_map(urls: set[str]) -> dict[str, str]:
+    m: dict[str, str] = {}
+    ASSETS_SITE.mkdir(parents=True, exist_ok=True)
+    for u in sorted(urls):
+        low = u.split("?")[0].lower()
+        ext = ".jpg"
+        if low.endswith(".png"):
+            ext = ".png"
+        elif low.endswith(".webp"):
+            ext = ".webp"
+        h = hashlib.sha256(u.encode()).hexdigest()[:20]
+        fn = f"unsplash-{h}{ext}"
+        dest = ASSETS_SITE / fn
+        if not dest.exists():
+            try:
+                dest.write_bytes(fetch_bytes(u))
+            except Exception:
+                continue
+        m[u] = f"assets/site/{fn}"
+    return m
+
+
+def apply_unsplash_map(html: str, umap: dict[str, str]) -> str:
+    for remote, local in umap.items():
+        html = html.replace(remote, local)
+    return html
 
 
 def build_font_css() -> None:
@@ -527,6 +828,17 @@ def build_font_css() -> None:
     (ASSETS_FONTS / "fonts.css").write_text("\n\n".join(out_css) + "\n", encoding="utf-8")
 
 
+def patch_astro_bundle_paths() -> None:
+    """Vite mapDeps uses _astro-.../ paths rooted at site /; flatten to ./ alongside chunks."""
+    old = "_astro-1777938346575/"
+    new = "./"
+    for p in ASSETS_ASTRO.glob("*.js"):
+        t = p.read_text(encoding="utf-8", errors="replace")
+        if old not in t:
+            continue
+        p.write_text(t.replace(old, new), encoding="utf-8")
+
+
 def main() -> int:
     CACHE.mkdir(parents=True, exist_ok=True)
     raw_pages: list[str] = []
@@ -548,12 +860,15 @@ def main() -> int:
     ASSETS_SITE.mkdir(parents=True, exist_ok=True)
     ASSETS_MEDIA.mkdir(parents=True, exist_ok=True)
 
-    files = sorted(collect_site_filenames(ud))
-    jobs = [(f"{CDN}/{fn}", str(ASSETS_SITE / fn)) for fn in files]
+    files = set(collect_site_filenames(ud))
+    for raw in raw_pages:
+        files |= collect_zyro_filenames_from_html(raw)
+
+    jobs = [(f"{CDN}/{fn}", str(ASSETS_SITE / fn)) for fn in sorted(files)]
     jobs.append((HERO_VIDEO, str(ASSETS_MEDIA / "hero.mp4")))
     jobs.append((HERO_POSTER, str(ASSETS_MEDIA / "hero-poster.jpg")))
 
-    print("download", len(jobs), "files …")
+    print("download", len(jobs), "site/media files …")
     bad: list[tuple[str, str]] = []
     ok = 0
     with ThreadPoolExecutor(max_workers=8) as ex:
@@ -574,19 +889,25 @@ def main() -> int:
     except Exception as e:
         print("font build error", e)
 
-    for _pid, page in ud["pages"].items():
-        slug = page.get("slug")
-        if slug not in SLUG_TO_FILE:
-            continue
-        meta = page.get("meta") or {}
-        title = (meta.get("title") or page.get("name") or slug).strip()
-        if "Ultra Performance Academy" not in title:
-            title = f"{title} | Ultra Performance Academy"
-        desc = (meta.get("description") or "").strip()[:400]
-        body = render_page(slug, ud)
-        body = rewrite_links(body)
-        out = shell(title, desc, slug, body, ud)
+    print("astro bundle …")
+    astro_bad = download_astro_bundle()
+    for name, err in astro_bad:
+        bad.append((name, err))
+        print(" FAIL astro", name, err)
+    patch_astro_bundle_paths()
+
+    unsplash_all: set[str] = set()
+    for raw in raw_pages:
+        unsplash_all |= collect_unsplash_urls(raw)
+    unsplash_map = build_unsplash_map(unsplash_all)
+    print("unsplash local", len(unsplash_map), "/", len(unsplash_all))
+
+    for path, cname in URLS:
+        slug = "home" if path == "/" else path.lstrip("/")
         out_path = ROOT / SLUG_TO_FILE[slug]
+        raw = (CACHE / cname).read_text(encoding="utf-8")
+        out = rewrite_ssr_html(raw)
+        out = apply_unsplash_map(out, unsplash_map)
         out_path.write_text(out, encoding="utf-8")
         print("write", out_path.relative_to(ROOT))
 
