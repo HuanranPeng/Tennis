@@ -1,6 +1,24 @@
-/* Entry animations default to opacity:0 until JS sets data-animation-state.
-   When the page is opened as file:// or in some embedded previews, ES modules
-   may not run, so nothing ever becomes visible. html.no-entry-anim restores SSR. */
+/* Main column: Zyro keeps .transition at opacity:0 until Vue sets data-animation-state.
+   If hydration fails or stalls (common with static mirrors), the body stays blank.
+   Scoped to .page__blocks so the header/hero chrome is unchanged; SSR text/images show. */
+.page__blocks .transition.transition--slide:not(.transition--root-hidden),
+.page__blocks .transition.transition--fade:not(.transition--root-hidden),
+.page__blocks .transition.transition--scale:not(.transition--root-hidden) {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.page__blocks .transition.transition--slide.transition--root-hidden [data-animation-role="block-element"],
+.page__blocks .transition.transition--slide.transition--root-hidden [data-animation-role="image"],
+.page__blocks .transition.transition--fade.transition--root-hidden [data-animation-role="block-element"],
+.page__blocks .transition.transition--fade.transition--root-hidden [data-animation-role="image"],
+.page__blocks .transition.transition--scale.transition--root-hidden [data-animation-role="block-element"],
+.page__blocks .transition.transition--scale.transition--root-hidden [data-animation-role="image"] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* file:// / preview: same treatment site-wide when html gets this class (see inline script). */
 html.no-entry-anim .transition.transition--slide:not(.transition--root-hidden),
 html.no-entry-anim .transition.transition--fade:not(.transition--root-hidden),
 html.no-entry-anim .transition.transition--scale:not(.transition--root-hidden) {
