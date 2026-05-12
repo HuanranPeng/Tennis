@@ -984,6 +984,30 @@ body.nav-open {
   text-decoration-color: var(--cream);
 }
 
+.upa-camp-flyer {
+  margin: 1.5rem auto 2.25rem;
+  max-width: 560px;
+  padding: 0;
+}
+
+.upa-camp-flyer img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 234, 204, 0.06);
+}
+
+.upa-seo-block ul:not(.upa-seo-contact) {
+  margin: 0.75rem 0 1.25rem;
+  padding-left: 1.25rem;
+}
+
+.upa-seo-block ul:not(.upa-seo-contact) li {
+  margin: 0.35rem 0;
+}
+
 .upa-seo-contact {
   list-style: none;
   padding: 0;

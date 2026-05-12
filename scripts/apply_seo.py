@@ -26,6 +26,8 @@ SENTINEL = "data-upa-seo"
 SITE_BASE = "https://huanranpeng.github.io/Tennis"
 SITE_HOME = SITE_BASE + "/"
 
+DEFAULT_OG_IMAGE = SITE_BASE + "/assets/site/2026-summer-camp-flyer.png"
+
 CLEAN_INSTAGRAM = "https://www.instagram.com/ultra.performance.academy"
 PHONE = "(650) 308-8355"
 ADDRESS_HTML = (
@@ -116,7 +118,10 @@ PAGES: dict[str, dict] = {
     <p>Our USTA-certified coaching team includes <strong>Stephanie Huang</strong>, <strong>Francis Sargent</strong> (former Stanford assistant coach), <strong>Li Jing</strong> (Chinese national team coach), <strong>Leon Bax</strong> (PhD, WTA/ATP performance coach), and <strong>Rodrigo Perez</strong> — offering private lessons, group clinics, summer camps, and specialized mental and physical fitness programs for all ages and skill levels.</p>
     <h3>Serving the South Bay Area</h3>
     <p>Ultra Performance Academy is conveniently located at Mission College, 3000 Mission College Blvd, Santa Clara, CA 95054 — easily accessible from Sunnyvale, Cupertino, Mountain View, San Jose, Milpitas, and the greater Silicon Valley area. Whether you're looking for tennis lessons near Santa Clara, youth tennis programs in the South Bay, or high-performance training in Silicon Valley, our coaches are here to help you reach your goals.</p>
-    <p class="upa-seo-cta"><a href="contact.html">Book a lesson</a> · <a href="coaches.html">Meet our coaches</a> · <a href="summerholiday-camp.html">2025 Summer Camp</a></p>
+    <h3>Now Enrolling: 2026 Summer Camp at Gunderson High School, San Jose</h3>
+    <p>Our <strong>2026 tennis summer camp</strong> runs <strong>June 1 – July 31, 2026</strong> at <strong>Gunderson High School in San Jose</strong> — 9 weeks of elite junior training. Morning sessions for Green Dot &amp; YB 1 (UTR ≤ 4); afternoon sessions for YB 2 (UTR 4–6.5) and YB 3 (UTR 6.5+). <strong>$140/session</strong> with <strong>10% off</strong> weekly registration. <a href="summerholiday-camp.html">See the full 2026 summer camp details</a>.</p>
+
+    <p class="upa-seo-cta"><a href="contact.html">Book a lesson</a> · <a href="coaches.html">Meet our coaches</a> · <a href="summerholiday-camp.html">2026 Summer Camp</a></p>
   </div>
 </section>
 """.strip(),
@@ -193,39 +198,44 @@ PAGES: dict[str, dict] = {
     },
     "summerholiday-camp.html": {
         "slug": "summerholiday-camp",
-        "title": "Tennis Summer Camp Santa Clara 2025 — Kids & Junior Programs | Ultra Performance Academy",
+        "title": "Tennis Summer Camp San Jose 2026 — Gunderson High School | Ultra Performance Academy",
         "description": (
-            "Enroll in Ultra Performance Academy's 2025 tennis summer camp in Santa Clara, CA. "
-            "Programs for juniors ages 5+ — from beginner Green Dot to Pre-Elite (UTR 5.5–8). "
-            "June 2 – August 1 at Mission College. $60–$100/session. Limited spots. Register now."
+            "Ultra Performance Academy 2026 tennis summer camp at Gunderson High School, "
+            "San Jose, CA. Nine weeks of elite junior training, June 1 – July 31, 2026. "
+            "Morning session for Green Dot & YB 1 (UTR ≤ 4); afternoon session for YB 2 "
+            "(UTR 4–6.5) and YB 3 (UTR 6.5+). $140 per session, 10% off weekly. Limited spots."
         ),
         "keywords": (
-            "tennis summer camp santa clara 2025, junior tennis camp bay area, "
-            "kids tennis summer program silicon valley, tennis holiday camp santa clara, "
-            "UTR tennis camp, performance tennis camp"
+            "2026 tennis summer camp san jose, gunderson high school tennis camp, "
+            "junior tennis camp bay area 2026, UTR tennis camp san jose, "
+            "kids tennis summer program silicon valley, ultra performance academy summer camp, "
+            "YB tennis training, tennis camp 95136"
         ),
+        "og_image": SITE_BASE + "/assets/site/2026-summer-camp-flyer.png",
         "schemas": [
             {
                 "@context": "https://schema.org",
                 "@type": "Event",
-                "name": "Ultra Performance Academy 2025 Tennis Summer Camp",
+                "name": "Ultra Performance Academy 2026 Tennis Summer Camp",
                 "description": (
-                    "2025 tennis summer camp in Santa Clara, CA — junior programs from "
-                    "beginner Green Dot to Pre-Elite (UTR up to 8) at Mission College."
+                    "2026 tennis summer camp at Gunderson High School, San Jose, CA — 9 weeks "
+                    "of elite junior training. Morning session for Green Dot & YB 1 (UTR ≤ 4); "
+                    "afternoon session for YB 2 (UTR 4–6.5) and YB 3 (UTR 6.5+)."
                 ),
-                "startDate": "2025-06-02",
-                "endDate": "2025-08-01",
+                "image": SITE_BASE + "/assets/site/2026-summer-camp-flyer.png",
+                "startDate": "2026-06-01",
+                "endDate": "2026-07-31",
                 "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
                 "eventStatus": "https://schema.org/EventScheduled",
                 "location": {
                     "@type": "Place",
-                    "name": "Mission College",
+                    "name": "Gunderson High School",
                     "address": {
                         "@type": "PostalAddress",
-                        "streetAddress": "3000 Mission College Boulevard",
-                        "addressLocality": "Santa Clara",
+                        "streetAddress": "622 Gaundabert Ln",
+                        "addressLocality": "San Jose",
                         "addressRegion": "CA",
-                        "postalCode": "95054",
+                        "postalCode": "95136",
                         "addressCountry": "US",
                     },
                 },
@@ -233,33 +243,62 @@ PAGES: dict[str, dict] = {
                     "@type": "SportsClub",
                     "name": "Ultra Performance Academy",
                     "url": SITE_HOME,
+                    "email": "summer.jiang.up@gmail.com",
+                    "telephone": "+1-408-831-0412",
                 },
                 "offers": {
                     "@type": "Offer",
                     "priceCurrency": "USD",
-                    "price": "60",
+                    "price": "140",
                     "url": page_url("summerholiday-camp"),
                     "availability": "https://schema.org/LimitedAvailability",
+                    "validFrom": "2025-11-01",
                 },
             }
         ],
         "seo_html": """
-<section class="upa-seo-block" data-upa-seo="summer-camp" aria-label="2025 Tennis Summer Camp">
+<section class="upa-seo-block" data-upa-seo="summer-camp" aria-label="2026 Tennis Summer Camp">
   <div class="upa-seo-inner">
-    <h1>2025 Tennis Summer Camp in Santa Clara, CA — Junior Programs at Mission College</h1>
-    <p>Join <strong>Ultra Performance Academy</strong> for the 2025 tennis summer camp in <strong>Santa Clara, CA</strong> — a high-intensity junior training program held at <strong>Mission College</strong> from <strong>June 2 through August 1</strong>. With four program levels designed for players from complete beginners to advanced competitors (UTR up to 8), every junior will find the right challenge. Sessions include technical and tactical drills, fitness training, competitive match play, and mental skills development — led by our USTA-certified coaching team including <strong>Stephanie Huang</strong>, <strong>Rodrigo Perez</strong>, and <strong>Li Jing</strong>. Spots are limited. Register early to secure your place.</p>
+    <h1>2026 Tennis Summer Camp in San Jose — 9 Weeks at Gunderson High School</h1>
 
-    <h3>Green Dot — Beginner / Intermediate</h3>
-    <p>Beginner and intermediate clinic for junior players learning the fundamentals of competitive tennis. Monday–Thursday evenings, 5:30–7:00pm. June 2 – August 1. <strong>$60/session</strong>.</p>
+    <figure class="upa-camp-flyer">
+      <img src="assets/site/2026-summer-camp-flyer.png"
+           alt="Ultra Performance Academy 2026 Summer Camp flyer — June 1 through July 31, 2026 at Gunderson High School, San Jose. Morning session 9am–12:30pm for YB 1 and Green Dot, afternoon session 1:30pm–5pm for YB 2 and YB 3. $140 per session, 10% off weekly registration."
+           width="900" height="1280"
+           loading="eager" decoding="async">
+    </figure>
 
-    <h3>Performance Prep Program — UTR ≤ 3.5</h3>
-    <p>Competitive training camp for players rated UTR up to 3.5, focused on developing match-ready skills under game-realistic conditions. Monday–Friday, 4:00–7:00pm. <strong>$100/session</strong>.</p>
+    <p>Train this summer with <strong>Ultra Performance Academy</strong> at <strong>Gunderson High School in San Jose</strong> — <strong>9 weeks of elite junior tennis training from June 1 through July 31, 2026</strong>. Sessions run Monday through Friday with only one day off (July 3). From Green Dot beginners to UTR 6.5+ competitors, our small-group, performance-focused training builds technique, match strategy, and confidence.</p>
 
-    <h3>High Performance — UTR 3.5–5.5</h3>
-    <p>Intensive summer training for competitive juniors rated UTR 3.5–5.5. 3-hour daily sessions covering advanced tactics, fitness, and live match play. Monday–Friday, 4:00–7:00pm. <strong>$100/session</strong>.</p>
+    <h2>Camp Schedule &amp; Levels</h2>
 
-    <h3>Pre-Elite Program — UTR 5.5–8</h3>
-    <p>Elite-level summer training for advanced tournament players rated UTR 5.5–8. Structured around high-performance competition preparation. <strong>$100/session</strong>.</p>
+    <h3>Morning Session — YB 1 (UTR 4 &amp; below) &amp; Green Dot</h3>
+    <p><strong>9:00 AM – 12:30 PM</strong>. Foundational technical training, footwork, point construction, and supervised match play for beginners through developing juniors. Ideal for first-time campers and players building a competitive base.</p>
+
+    <h3>Afternoon Session — YB 2 (UTR 4 – 6.5) &amp; YB 3 (UTR 6.5+)</h3>
+    <p><strong>1:30 PM – 5:00 PM</strong>. High-intensity training for tournament-ready and advanced juniors — 3.5 hours of advanced drills, live point play, match strategy, and conditioning. The right environment for players preparing for UTR and USTA competition.</p>
+
+    <h2>Pricing &amp; Weekly Discount</h2>
+    <p><strong>$140 per session</strong>. Register for the entire week and receive <strong>10% off</strong> the weekly rate. Quality training only — spots are very limited.</p>
+
+    <h2>What's Included</h2>
+    <ul>
+      <li>High-quality coaching from Ultra Performance Academy's USTA-certified team</li>
+      <li>Skill development across stroke production, footwork, and tactics</li>
+      <li>Live match play and point-construction strategy</li>
+      <li>Fun, focused, motivating training environment</li>
+    </ul>
+
+    <h2>Location</h2>
+    <p><strong>Gunderson High School</strong><br>
+    622 Gaundabert Ln, San Jose, CA 95136 — easily accessible from Almaden, Willow Glen, Cambrian, and the greater South Bay.</p>
+
+    <h2>Reserve Your Spot</h2>
+    <ul class="upa-seo-contact">
+      <li><strong>WeChat:</strong> noveltyjx</li>
+      <li><strong>Text:</strong> <a href="sms:+14088310412">(408) 831-0412</a></li>
+      <li><strong>Email:</strong> <a href="mailto:summer.jiang.up@gmail.com">summer.jiang.up@gmail.com</a></li>
+    </ul>
 
     <p class="upa-seo-cta"><a href="contact.html">Register now</a> · <a href="coaches.html">Meet our coaches</a></p>
   </div>
@@ -408,12 +447,12 @@ PAGES: dict[str, dict] = {
     <p>One-on-one private lessons with our USTA-certified coaches are the fastest way to improve your game. Sessions are fully tailored to your strengths, weaknesses, and goals — whether you're a beginner picking up a racket for the first time or a competitive junior preparing for USTA tournaments.</p>
 
     <h3>Summer &amp; Holiday Camps</h3>
-    <p>Our tennis summer camps at Mission College, Santa Clara offer an intensive, fun-filled training experience for junior players ages 5 and up. With daily technical drills, match play, fitness training, and team-building activities, campers leave each session stronger, more confident, and more passionate about the game.</p>
+    <p>Our flagship <strong>2026 Summer Camp at Gunderson High School in San Jose</strong> runs <strong>June 1 – July 31, 2026</strong> — 9 weeks of intensive training for juniors from Green Dot beginners up to UTR 6.5+ tournament players. Morning and afternoon sessions, daily technical drills, match play, and strategy work. <strong>$140/session</strong>, 10% off weekly registration. Holiday camps run year-round on school breaks.</p>
 
     <h3>Specialized Physical Fitness</h3>
     <p>Tennis-specific strength, agility, and conditioning training designed to make you faster, stronger, and more explosive on the court. Programs are available for juniors (ages 8+) and adults, targeting footwork, core stability, endurance, and injury prevention.</p>
 
-    <p class="upa-seo-cta"><a href="contact.html">Book a program</a> · <a href="group-lessons.html">View group lessons</a> · <a href="summerholiday-camp.html">2025 Summer Camp</a></p>
+    <p class="upa-seo-cta"><a href="contact.html">Book a program</a> · <a href="group-lessons.html">View group lessons</a> · <a href="summerholiday-camp.html">2026 Summer Camp</a></p>
   </div>
 </section>
 """.strip(),
@@ -547,11 +586,14 @@ def _update_social_cards(html: str, cfg: dict) -> str:
     url = page_url(cfg["slug"])
     title = cfg["title"]
     desc = cfg["description"]
+    image = cfg.get("og_image") or DEFAULT_OG_IMAGE
     html = _replace_meta_prop(html, "og:url", url)
     html = _replace_meta_prop(html, "og:title", title)
     html = _replace_meta_prop(html, "og:description", desc)
     html = _replace_meta_prop(html, "og:site_name", "Ultra Performance Academy")
     html = _replace_meta_prop(html, "og:type", "website")
+    html = _replace_meta_prop(html, "og:image", image)
+    html = _replace_meta_named(html, "twitter:image", image)
     html = _replace_meta_named(html, "twitter:title", title)
     html = _replace_meta_named(html, "twitter:description", desc)
     html = _replace_meta_named(html, "twitter:card", "summary_large_image")
