@@ -11,6 +11,7 @@ Tasks covered:
   01 Summer Camp page          02 Homepage              03 Coaches page
   04 Group Lessons page        05 Programs page         06 Contact page
   07 Schema injection (JSON-LD)   08 Image alt text + global footer cleanup
+  09 Summer camp splash overlay  10 Tab favicon (site logo)
 """
 from __future__ import annotations
 
@@ -23,6 +24,32 @@ ROOT = Path(__file__).resolve().parents[1]
 
 SENTINEL = "data-upa-seo"
 
+# Full-screen summer camp promo (stripped + re-injected each `apply_seo` run).
+SUMMER_SPLASH_HTML = """<!--upa-summer-splash-->
+<div class="upa-summer-splash" id="upa-summer-splash" role="dialog" aria-modal="true" aria-labelledby="upa-splash-title" aria-describedby="upa-splash-desc" hidden>
+  <div class="upa-summer-splash__backdrop" data-close-splash tabindex="-1"></div>
+  <div class="upa-summer-splash__panel">
+    <button type="button" class="upa-summer-splash__close" data-close-splash aria-label="Close">&times;</button>
+    <img class="upa-summer-splash__img" src="assets/site/2026-summer-camp-flyer.png" alt="2026 Ultra Performance Academy summer tennis camp flyer" loading="eager" decoding="async" width="800" height="1030">
+    <h2 id="upa-splash-title" class="upa-summer-splash__title">2026 Summer Tennis Camp</h2>
+    <p id="upa-splash-desc" class="upa-summer-splash__desc">Nine weeks of junior training at Gunderson High School, San Jose — June 1 through July 31.</p>
+    <div class="upa-summer-splash__actions">
+      <a href="summerholiday-camp.html#camp-2026" class="upa-summer-splash__cta">View camp details</a>
+      <button type="button" class="upa-summer-splash__later" data-close-splash>Not now</button>
+    </div>
+  </div>
+</div>
+<script defer src="assets/site/summer-camp-splash.js"></script>
+<!--/upa-summer-splash-->
+"""
+# Same asset as the header logo (Hostinger export).
+SITE_TAB_LOGO = "assets/site/transparent1-YbNB6q61jjSn7eRZ.png"
+FAVICON_HTML = f"""<!--upa-favicon-->
+<link rel="icon" type="image/png" sizes="32x32" href="{SITE_TAB_LOGO}">
+<link rel="icon" type="image/png" sizes="192x192" href="{SITE_TAB_LOGO}">
+<link rel="apple-touch-icon" href="{SITE_TAB_LOGO}">
+<!--/upa-favicon-->
+"""
 SITE_BASE = "https://huanranpeng.github.io/Tennis"
 SITE_HOME = SITE_BASE + "/"
 
@@ -74,7 +101,7 @@ PAGES: dict[str, dict] = {
                 ),
                 "url": SITE_HOME,
                 "telephone": "+1-650-308-8355",
-                "email": "champ.for.life@ultraperformanceacademy.net",
+                "email": "info@ultraperformanceacademy.com",
                 "address": {
                     "@type": "PostalAddress",
                     "streetAddress": "3000 Mission College Boulevard",
@@ -119,9 +146,9 @@ PAGES: dict[str, dict] = {
     <h3>Serving the South Bay Area</h3>
     <p>Ultra Performance Academy is conveniently located at Mission College, 3000 Mission College Blvd, Santa Clara, CA 95054 — easily accessible from Sunnyvale, Cupertino, Mountain View, San Jose, Milpitas, and the greater Silicon Valley area. Whether you're looking for tennis lessons near Santa Clara, youth tennis programs in the South Bay, or high-performance training in Silicon Valley, our coaches are here to help you reach your goals.</p>
     <h3>Now Enrolling: 2026 Summer Camp at Gunderson High School, San Jose</h3>
-    <p>Our <strong>2026 tennis summer camp</strong> runs <strong>June 1 – July 31, 2026</strong> at <strong>Gunderson High School in San Jose</strong> — 9 weeks of elite junior training. Morning sessions for Green Dot &amp; YB 1 (UTR ≤ 4); afternoon sessions for YB 2 (UTR 4–6.5) and YB 3 (UTR 6.5+). <strong>$140/session</strong> with <strong>10% off</strong> weekly registration. <a href="summerholiday-camp.html">See the full 2026 summer camp details</a>.</p>
+    <p>Our <strong>2026 tennis summer camp</strong> runs <strong>June 1 – July 31, 2026</strong> at <strong>Gunderson High School in San Jose</strong> — 9 weeks of elite junior training. Morning sessions for Green Dot &amp; YB 1 (UTR ≤ 4); afternoon sessions for YB 2 (UTR 4–6.5) and YB 3 (UTR 6.5+). <strong>$140/session</strong> with <strong>10% off</strong> weekly registration. <a href="summerholiday-camp.html#camp-2026">See the full 2026 summer camp details</a>.</p>
 
-    <p class="upa-seo-cta"><a href="contact.html">Book a lesson</a> · <a href="coaches.html">Meet our coaches</a> · <a href="summerholiday-camp.html">2026 Summer Camp</a></p>
+    <p class="upa-seo-cta"><a href="contact.html">Book a lesson</a> · <a href="coaches.html">Meet our coaches</a> · <a href="summerholiday-camp.html#camp-2026">2026 Summer Camp</a></p>
   </div>
 </section>
 """.strip(),
@@ -257,7 +284,7 @@ PAGES: dict[str, dict] = {
             }
         ],
         "seo_html": """
-<section class="upa-seo-block" data-upa-seo="summer-camp" aria-label="2026 Tennis Summer Camp">
+<section id="camp-2026" class="upa-seo-block" data-upa-seo="summer-camp" aria-label="2026 Tennis Summer Camp">
   <div class="upa-seo-inner">
     <h1>2026 Tennis Summer Camp in San Jose — 9 Weeks at Gunderson High School</h1>
 
@@ -452,7 +479,7 @@ PAGES: dict[str, dict] = {
     <h3>Specialized Physical Fitness</h3>
     <p>Tennis-specific strength, agility, and conditioning training designed to make you faster, stronger, and more explosive on the court. Programs are available for juniors (ages 8+) and adults, targeting footwork, core stability, endurance, and injury prevention.</p>
 
-    <p class="upa-seo-cta"><a href="contact.html">Book a program</a> · <a href="group-lessons.html">View group lessons</a> · <a href="summerholiday-camp.html">2026 Summer Camp</a></p>
+    <p class="upa-seo-cta"><a href="contact.html">Book a program</a> · <a href="group-lessons.html">View group lessons</a> · <a href="summerholiday-camp.html#camp-2026">2026 Summer Camp</a></p>
   </div>
 </section>
 """.strip(),
@@ -463,7 +490,7 @@ PAGES: dict[str, dict] = {
         "description": (
             "Contact Ultra Performance Academy to book tennis lessons, group clinics, or "
             "summer camp sessions in Santa Clara, CA. Located at Mission College. Call "
-            "(650) 308-8355 or email champ.for.life@ultraperformanceacademy.net. Serving the "
+            "(650) 308-8355 or email info@ultraperformanceacademy.com. Serving the "
             "Bay Area."
         ),
         "keywords": (
@@ -477,7 +504,7 @@ PAGES: dict[str, dict] = {
                 "name": "Ultra Performance Academy",
                 "url": SITE_HOME,
                 "telephone": "+1-650-308-8355",
-                "email": "champ.for.life@ultraperformanceacademy.net",
+                "email": "info@ultraperformanceacademy.com",
                 "address": {
                     "@type": "PostalAddress",
                     "streetAddress": "3000 Mission College Boulevard",
@@ -496,7 +523,7 @@ PAGES: dict[str, dict] = {
     <p>Ultra Performance Academy is located at <strong>Mission College in Santa Clara, CA</strong> — easily accessible from Sunnyvale, Cupertino, San Jose, Mountain View, and the greater South Bay Area.</p>
     <ul class="upa-seo-contact">
       <li><strong>Phone:</strong> <a href="tel:+16503088355">(650) 308-8355</a></li>
-      <li><strong>Email:</strong> <a href="mailto:champ.for.life@ultraperformanceacademy.net">champ.for.life@ultraperformanceacademy.net</a> or <a href="mailto:summer.jiang.up@gmail.com">summer.jiang.up@gmail.com</a></li>
+      <li><strong>Email:</strong> <a href="mailto:info@ultraperformanceacademy.com">info@ultraperformanceacademy.com</a> or <a href="mailto:summer.jiang.up@gmail.com">summer.jiang.up@gmail.com</a></li>
       <li><strong>Address:</strong> 3000 Mission College Boulevard, Santa Clara, CA 95054</li>
       <li><strong>Instagram:</strong> <a href="https://www.instagram.com/ultra.performance.academy" rel="noopener" target="_blank">@ultra.performance.academy</a></li>
     </ul>
@@ -612,7 +639,7 @@ def _strip_existing_seo_blocks(html: str) -> str:
         flags=re.DOTALL,
     )
     html = re.sub(
-        r'<section class="upa-seo-block"[^>]*\bdata-upa-seo="[^"]*"[^>]*>.*?</section>',
+        r'<section\b[^>]*\bclass="[^"]*\bupa-seo-block\b[^"]*"[^>]*\bdata-upa-seo="[^"]*"[^>]*>.*?</section>',
         "",
         html,
         flags=re.DOTALL,
@@ -902,6 +929,50 @@ def _ensure_canonical(html: str, slug: str) -> str:
     return html.replace("</head>", f"{tag}</head>", 1)
 
 
+_SUMMER_SPLASH_RE = re.compile(
+    r"<!--\s*upa-summer-splash\s*-->.*?<!--\s*/upa-summer-splash\s*-->\s*",
+    re.DOTALL | re.IGNORECASE,
+)
+
+
+def _strip_summer_splash(html: str) -> str:
+    return _SUMMER_SPLASH_RE.sub("", html)
+
+
+def _inject_summer_splash(html: str) -> str:
+    return html.replace("</body>", SUMMER_SPLASH_HTML + "\n</body>", 1)
+
+
+_FAVICON_BLOCK_RE = re.compile(
+    r"<!--\s*upa-favicon\s*-->.*?<!--\s*/upa-favicon\s*-->\s*",
+    re.DOTALL | re.IGNORECASE,
+)
+
+
+def _strip_favicon_tags(html: str) -> str:
+    """Remove prior favicon injection and Hostinger `data:` stub PNG favicons."""
+    html = _FAVICON_BLOCK_RE.sub("", html)
+    html = re.sub(
+        r'<link\s+rel="icon"\s+size="[^"]*"\s+href="data:[^"]*"\s*/?>',
+        "",
+        html,
+        flags=re.IGNORECASE,
+    )
+    html = re.sub(
+        r'<link\s+rel="apple-touch-icon"\s+href="data:[^"]*"\s*/?>',
+        "",
+        html,
+        flags=re.IGNORECASE,
+    )
+    return html
+
+
+def _inject_favicon(html: str) -> str:
+    if "</title>" not in html:
+        return html
+    return html.replace("</title>", f"</title>\n{FAVICON_HTML}", 1)
+
+
 def _strip_hostinger_traces(html: str) -> str:
     """Remove tags that identify Hostinger as the site generator."""
     html = re.sub(
@@ -930,9 +1001,12 @@ def patch(path: Path, cfg: dict) -> dict:
     before_len = len(html)
 
     html = _strip_existing_seo_blocks(html)
+    html = _strip_summer_splash(html)
     html = _strip_hostinger_traces(html)
+    html = _strip_favicon_tags(html)
     html = _ensure_local_stylesheet(html)
     html = _replace_title(html, cfg["title"])
+    html = _inject_favicon(html)
     html = _replace_meta(html, "description", cfg["description"])
     html = _replace_meta(html, "keywords", cfg["keywords"])
     html = _update_social_cards(html, cfg)
@@ -941,6 +1015,7 @@ def patch(path: Path, cfg: dict) -> dict:
     html = _inject_seo_section(html, cfg.get("seo_html") or "")
     html, alt_filled, strings_cleaned = _patch_island_alts(html, cfg["slug"])
     html = _clean_links(html)
+    html = _inject_summer_splash(html)
 
     path.write_text(html, encoding="utf-8")
     return {
