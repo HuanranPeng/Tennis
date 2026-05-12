@@ -1,6 +1,7 @@
 /* Ultra Performance Academy — static mirror (fonts & palette from live site) */
 
 :root {
+  /* Color palette */
   --bg-dark: #211e1b;
   --bg-header: rgb(33, 30, 27);
   --cream: rgb(255, 234, 204);
@@ -13,8 +14,76 @@
   --nav-hover: rgb(204, 99, 51);
   --radius: 20px;
   --max: 1240px;
+
+  /* === Typography system =================================================
+   * Two font families, three heading sizes (H1/H2/H3), three body sizes
+   * (P1/P2/P3). All sizes are fluid via clamp() so they scale gracefully
+   * from mobile to desktop. Same tokens are exposed under Hostinger's
+   * naming (--h1-font-size, --body-font-size, …) further down, so every
+   * heading/paragraph on the site — ours or theirs — renders against the
+   * same scale unless an inline style overrides it.
+   * ====================================================================== */
   --font-head: "Oswald", system-ui, sans-serif;
   --font-body: "Lato", system-ui, sans-serif;
+
+  /* Font sizes (fluid) */
+  --fs-h1: clamp(2rem, 4.5vw, 3rem);          /* 32  → 48px */
+  --fs-h2: clamp(1.65rem, 3vw, 2.25rem);      /* 26  → 36px */
+  --fs-h3: clamp(1.15rem, 1.8vw, 1.4rem);     /* 18  → 22px */
+  --fs-p1: clamp(1.05rem, 1.3vw, 1.2rem);     /* 17  → 19px — lead/intro */
+  --fs-p2: 1rem;                              /* 16px — body */
+  --fs-p3: 0.875rem;                          /* 14px — small/caption */
+
+  /* Line heights */
+  --lh-tight: 1.15;
+  --lh-snug: 1.3;
+  --lh-normal: 1.55;
+  --lh-relaxed: 1.7;
+
+  /* Font weights */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Letter spacing */
+  --ls-tight: -0.01em;
+  --ls-normal: 0;
+  --ls-wide: 0.02em;
+
+  /* ---- Hostinger token aliases (so Astro components inherit our scale) ---- */
+  --h1-font-family: var(--font-head);
+  --h1-font-size: var(--fs-h1);
+  --h1-font-weight: var(--fw-bold);
+  --h1-line-height: var(--lh-tight);
+  --h1-font-style: normal;
+  --h1-text-decoration: none;
+  --h1-text-transform: none;
+
+  --h2-font-family: var(--font-head);
+  --h2-font-size: var(--fs-h2);
+  --h2-font-weight: var(--fw-bold);
+  --h2-line-height: var(--lh-tight);
+
+  --h3-font-family: var(--font-head);
+  --h3-font-size: var(--fs-h3);
+  --h3-font-weight: var(--fw-semibold);
+  --h3-line-height: var(--lh-snug);
+
+  --body-font-family: var(--font-body);
+  --body-font-size: var(--fs-p2);
+  --body-font-weight: var(--fw-regular);
+  --body-line-height: var(--lh-normal);
+
+  --body-large-font-family: var(--font-body);
+  --body-large-font-size: var(--fs-p1);
+  --body-large-font-weight: var(--fw-regular);
+  --body-large-line-height: var(--lh-relaxed);
+
+  --body-small-font-family: var(--font-body);
+  --body-small-font-size: var(--fs-p3);
+  --body-small-font-weight: var(--fw-regular);
+  --body-small-line-height: var(--lh-snug);
 }
 
 *,
@@ -30,11 +99,14 @@ html {
 body {
   margin: 0;
   font-family: var(--font-body);
-  font-weight: 400;
-  font-size: 1.05rem;
-  line-height: 1.55;
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-p2);
+  line-height: var(--lh-normal);
   color: var(--text-dark);
   background: var(--bg-dark);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 img {
@@ -59,9 +131,68 @@ h4,
 h5,
 h6 {
   font-family: var(--font-head);
-  font-weight: 700;
-  line-height: 1.2;
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
   margin: 0 0 0.5em;
+}
+
+/* === Typography utility classes ===========================================
+ * Use these on hand-authored content (e.g. our SEO blocks). They map cleanly
+ * onto the H1/H2/H3 + P1/P2/P3 scale defined in :root so every page reads
+ * with the same visual rhythm.
+ * ========================================================================== */
+
+.upa-h1,
+.upa-h2,
+.upa-h3 {
+  font-family: var(--font-head);
+  margin: 0 0 0.5em;
+  color: inherit;
+}
+
+.upa-h1 {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+}
+
+.upa-h2 {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+}
+
+.upa-h3 {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-wide);
+}
+
+.upa-p1,
+.upa-p2,
+.upa-p3 {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  margin: 0 0 1em;
+  color: inherit;
+}
+
+.upa-p1 {
+  font-size: var(--fs-p1);
+  line-height: var(--lh-relaxed);
+}
+
+.upa-p2 {
+  font-size: var(--fs-p2);
+  line-height: var(--lh-normal);
+}
+
+.upa-p3 {
+  font-size: var(--fs-p3);
+  line-height: var(--lh-snug);
+  color: rgba(255, 234, 204, 0.7);
 }
 
 /* ----- Header ----- */
@@ -885,4 +1016,179 @@ body.nav-open {
 
 .gen-button-wrap {
   margin: 1rem 0;
+}
+
+/* -------------------------------------------------------------------------
+   SEO content block (injected by scripts/apply_seo.py)
+   A designed, crawlable narrative section that sits ABOVE the Hostinger
+   footer to round out the page with location- and program-rich copy.
+   ------------------------------------------------------------------------- */
+
+.upa-seo-block {
+  position: relative;
+  background: linear-gradient(
+    180deg,
+    var(--bg-dark) 0%,
+    rgba(33, 30, 27, 0.985) 100%
+  );
+  color: var(--cream);
+  padding: clamp(3rem, 6vw, 5.5rem) 1.25rem clamp(3rem, 5vw, 4.5rem);
+  border-top: 1px solid rgba(255, 234, 204, 0.08);
+}
+
+.upa-seo-block::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(3rem, 8vw, 5rem);
+  height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.upa-seo-inner {
+  max-width: min(var(--max), 1080px);
+  margin: 0 auto;
+}
+
+.upa-seo-block h1,
+.upa-seo-block h2,
+.upa-seo-block h3 {
+  font-family: var(--font-head);
+  color: var(--cream);
+  margin-bottom: 0.5rem;
+}
+
+.upa-seo-block h1 {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  margin-top: 0;
+}
+
+.upa-seo-block h2 {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  margin-top: 2.5rem;
+}
+
+.upa-seo-block h2:first-of-type,
+.upa-seo-block h1 + h2 {
+  margin-top: 0.25rem;
+}
+
+.upa-seo-block h3 {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-wide);
+  color: var(--accent);
+  margin-top: 1.75rem;
+  text-transform: uppercase;
+}
+
+.upa-seo-block p,
+.upa-seo-block li {
+  font-family: var(--font-body);
+  font-size: var(--fs-p2);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-relaxed);
+  color: rgba(255, 234, 204, 0.88);
+  max-width: 75ch;
+}
+
+/* First paragraph after an H1 acts as a lead/intro — auto P1 */
+.upa-seo-block h1 + p,
+.upa-seo-block h1 + figure + p,
+.upa-seo-block .upa-p1 {
+  font-size: var(--fs-p1);
+  line-height: var(--lh-relaxed);
+  color: var(--cream);
+  margin-top: 0.75rem;
+  max-width: 70ch;
+}
+
+.upa-seo-block .upa-p3 {
+  font-size: var(--fs-p3);
+  line-height: var(--lh-snug);
+  color: rgba(255, 234, 204, 0.7);
+}
+
+.upa-seo-block p {
+  margin: 0.5rem 0 1rem;
+}
+
+.upa-seo-block strong {
+  color: var(--cream);
+  font-weight: var(--fw-semibold);
+}
+
+.upa-seo-block a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: rgba(212, 156, 47, 0.5);
+  text-underline-offset: 3px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.upa-seo-block a:hover {
+  color: var(--cream);
+  text-decoration-color: var(--cream);
+}
+
+.upa-camp-flyer {
+  margin: 1.5rem auto 2.25rem;
+  max-width: 560px;
+  padding: 0;
+}
+
+.upa-camp-flyer img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 234, 204, 0.06);
+}
+
+.upa-seo-block ul:not(.upa-seo-contact) {
+  margin: 0.75rem 0 1.25rem;
+  padding-left: 1.25rem;
+}
+
+.upa-seo-block ul:not(.upa-seo-contact) li {
+  margin: 0.35rem 0;
+}
+
+.upa-seo-contact {
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 0;
+}
+
+.upa-seo-contact li {
+  margin: 0.45rem 0;
+  font-size: var(--fs-p2);
+  line-height: var(--lh-snug);
+}
+
+.upa-seo-block .upa-seo-cta {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 234, 204, 0.08);
+  font-family: var(--font-head);
+  font-size: var(--fs-p1);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-wide);
+}
+
+@media (max-width: 600px) {
+  .upa-seo-block {
+    padding: 2.5rem 1rem 2.25rem;
+  }
 }
