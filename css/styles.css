@@ -1271,25 +1271,8 @@ body.nav-open {
   width: 100%;
   height: auto;
   border-radius: 12px;
-  margin: 0 0 0.85rem;
+  margin: 0 0 0.75rem;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
-}
-
-.upa-summer-splash__title {
-  font-family: var(--font-head);
-  font-size: var(--fs-h3);
-  font-weight: var(--fw-bold);
-  margin: 0 0 0.35rem;
-  padding-right: 2rem;
-  color: var(--text-dark);
-}
-
-.upa-summer-splash__desc {
-  font-family: var(--font-body);
-  font-size: var(--fs-p3);
-  line-height: var(--lh-snug);
-  margin: 0 0 1rem;
-  color: var(--text-muted);
 }
 
 .upa-summer-splash__actions {

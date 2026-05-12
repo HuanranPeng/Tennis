@@ -26,13 +26,11 @@ SENTINEL = "data-upa-seo"
 
 # Full-screen summer camp promo (stripped + re-injected each `apply_seo` run).
 SUMMER_SPLASH_HTML = """<!--upa-summer-splash-->
-<div class="upa-summer-splash" id="upa-summer-splash" role="dialog" aria-modal="true" aria-labelledby="upa-splash-title" aria-describedby="upa-splash-desc" hidden>
+<div class="upa-summer-splash" id="upa-summer-splash" role="dialog" aria-modal="true" aria-label="2026 summer camp" hidden>
   <div class="upa-summer-splash__backdrop" data-close-splash tabindex="-1"></div>
   <div class="upa-summer-splash__panel">
     <button type="button" class="upa-summer-splash__close" data-close-splash aria-label="Close">&times;</button>
     <img class="upa-summer-splash__img" src="assets/site/2026-summer-camp-flyer.png" alt="2026 Ultra Performance Academy summer tennis camp flyer" loading="eager" decoding="async" width="800" height="1030">
-    <h2 id="upa-splash-title" class="upa-summer-splash__title">2026 Summer Tennis Camp</h2>
-    <p id="upa-splash-desc" class="upa-summer-splash__desc">Nine weeks of junior training at Gunderson High School, San Jose — June 1 through July 31.</p>
     <div class="upa-summer-splash__actions">
       <a href="summerholiday-camp.html#camp-2026" class="upa-summer-splash__cta">View camp details</a>
       <button type="button" class="upa-summer-splash__later" data-close-splash>Not now</button>
