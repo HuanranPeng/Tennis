@@ -889,18 +889,36 @@ body.nav-open {
 
 /* -------------------------------------------------------------------------
    SEO content block (injected by scripts/apply_seo.py)
-   Visible, crawlable static content appended near the end of <main>.
+   A designed, crawlable narrative section that sits ABOVE the Hostinger
+   footer to round out the page with location- and program-rich copy.
    ------------------------------------------------------------------------- */
 
 .upa-seo-block {
-  background: var(--bg-dark);
+  position: relative;
+  background: linear-gradient(
+    180deg,
+    var(--bg-dark) 0%,
+    rgba(33, 30, 27, 0.985) 100%
+  );
   color: var(--cream);
-  padding: 4rem 1.25rem;
+  padding: clamp(3rem, 6vw, 5.5rem) 1.25rem clamp(3rem, 5vw, 4.5rem);
   border-top: 1px solid rgba(255, 234, 204, 0.08);
 }
 
+.upa-seo-block::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(3rem, 8vw, 5rem);
+  height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
 .upa-seo-inner {
-  max-width: var(--max);
+  max-width: min(var(--max), 1080px);
   margin: 0 auto;
 }
 
@@ -909,30 +927,37 @@ body.nav-open {
 .upa-seo-block h3 {
   font-family: var(--font-head);
   color: var(--cream);
-  margin-top: 1.75rem;
+  margin-top: 2rem;
   margin-bottom: 0.5rem;
   line-height: 1.2;
   letter-spacing: 0.01em;
 }
 
 .upa-seo-block h1 {
-  font-size: clamp(1.75rem, 3.4vw, 2.6rem);
+  font-size: clamp(1.85rem, 3.4vw, 2.6rem);
   margin-top: 0;
 }
 
 .upa-seo-block h2 {
   font-size: clamp(1.4rem, 2.6vw, 1.85rem);
+  margin-top: 2.5rem;
+}
+
+.upa-seo-block h2:first-of-type,
+.upa-seo-block h1 + h2 {
+  margin-top: 0.25rem;
 }
 
 .upa-seo-block h3 {
-  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  font-size: clamp(1.1rem, 1.8vw, 1.3rem);
   color: var(--accent);
+  margin-top: 1.75rem;
 }
 
 .upa-seo-block p,
 .upa-seo-block li {
   font-size: 1rem;
-  line-height: 1.65;
+  line-height: 1.7;
   color: rgba(255, 234, 204, 0.88);
   max-width: 75ch;
 }
@@ -949,30 +974,36 @@ body.nav-open {
 .upa-seo-block a {
   color: var(--accent);
   text-decoration: underline;
+  text-decoration-color: rgba(212, 156, 47, 0.5);
   text-underline-offset: 3px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
 }
 
 .upa-seo-block a:hover {
   color: var(--cream);
+  text-decoration-color: var(--cream);
 }
 
 .upa-seo-contact {
   list-style: none;
   padding: 0;
-  margin: 1rem 0 0;
+  margin: 1.25rem 0 0;
 }
 
 .upa-seo-contact li {
-  margin: 0.4rem 0;
+  margin: 0.45rem 0;
+  font-size: 1.02rem;
 }
 
 .upa-seo-cta {
   margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 234, 204, 0.08);
   font-size: 1.05rem;
 }
 
 @media (max-width: 600px) {
   .upa-seo-block {
-    padding: 2.5rem 1rem;
+    padding: 2.5rem 1rem 2.25rem;
   }
 }

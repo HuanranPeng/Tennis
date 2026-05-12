@@ -457,7 +457,7 @@ PAGES: dict[str, dict] = {
     <p>Ultra Performance Academy is located at <strong>Mission College in Santa Clara, CA</strong> — easily accessible from Sunnyvale, Cupertino, San Jose, Mountain View, and the greater South Bay Area.</p>
     <ul class="upa-seo-contact">
       <li><strong>Phone:</strong> <a href="tel:+16503088355">(650) 308-8355</a></li>
-      <li><strong>Email:</strong> <a href="mailto:champ.for.life@ultraperformanceacademy.net">champ.for.life@ultraperformanceacademy.net</a></li>
+      <li><strong>Email:</strong> <a href="mailto:champ.for.life@ultraperformanceacademy.net">champ.for.life@ultraperformanceacademy.net</a> or <a href="mailto:summer.jiang.up@gmail.com">summer.jiang.up@gmail.com</a></li>
       <li><strong>Address:</strong> 3000 Mission College Boulevard, Santa Clara, CA 95054</li>
       <li><strong>Instagram:</strong> <a href="https://www.instagram.com/ultra.performance.academy" rel="noopener" target="_blank">@ultra.performance.academy</a></li>
     </ul>
@@ -592,16 +592,31 @@ def _inject_jsonld(html: str, slug: str, schemas: list[dict]) -> str:
     return html.replace("</head>", f"{blob}</head>", 1)
 
 
+_FOOTER_SECTION_RE = re.compile(
+    r'<section\b[^>]*class="[^"]*\bblock--footer\b[^"]*"[^>]*>',
+    re.IGNORECASE,
+)
+
+
 def _inject_seo_section(html: str, seo_html: str) -> str:
+    """Inject the SEO content block right ABOVE the Hostinger footer block.
+
+    Hostinger emits the footer as `<section class="block block--footer">…</section>`
+    inside `<main>`. To keep the visible footer at the bottom, we insert our
+    block just before that opening tag. Fallbacks: `</main>` then `</body>`.
+    """
     if not seo_html:
         return html
+    m = _FOOTER_SECTION_RE.search(html)
+    if m:
+        return html[: m.start()] + seo_html + html[m.start() :]
     if "</main>" in html:
         return html.replace("</main>", f"{seo_html}</main>", 1)
     return html.replace("</body>", f"{seo_html}</body>", 1)
 
 
 def _clean_links(html: str) -> str:
-    """Clean tracking params and obsolete contact info — but ONLY in safe surfaces.
+    """Clean tracking params on safe surfaces only.
 
     Important: we MUST NOT regex over `<astro-island props="...">` JSON, because
     that JSON uses HTML-encoded `&quot;` quotes — a naive `[^"]*` would consume
@@ -609,20 +624,13 @@ def _clean_links(html: str) -> str:
     So we target only:
       * `href="..."` attributes  (boundary is a literal `"`)
       * Visible `>text<` between tags  (boundary is `>` and `<`)
+
+    Note: we deliberately keep `summer.jiang.up@gmail.com` — the site's
+    secondary contact email — intact everywhere it appears.
     """
     html = re.sub(
         r'href="https://www\.instagram\.com/ultra\.performance\.academy\?[^"]*"',
         f'href="{CLEAN_INSTAGRAM}"',
-        html,
-    )
-    html = re.sub(
-        r'<a\s+[^>]*href="mailto:summer\.jiang\.up@gmail\.com"[^>]*>[^<]*</a>',
-        "",
-        html,
-    )
-    html = re.sub(
-        r'>(\s*)summer\.jiang\.up@gmail\.com(\s*)<',
-        r'>\1\2<',
         html,
     )
     return html
@@ -745,22 +753,13 @@ def _patch_alt_in_tree(obj, slug: str, counter: list[int]) -> None:
             _patch_alt_in_tree(v, slug, counter)
 
 
-_GMAIL_RE = re.compile(
-    r"""
-    (?:                                # surrounding noise (anchor tag, text, sep)
-        <a\s[^>]*?summer\.jiang\.up@gmail\.com[^>]*?>[^<]*</a>
-      | <[^>]*?summer\.jiang\.up@gmail\.com[^>]*?>\s*
-      | \s*[•·,\-—\|]?\s*summer\.jiang\.up@gmail\.com
-      | summer\.jiang\.up@gmail\.com
-    )
-    """,
-    re.VERBOSE | re.IGNORECASE,
-)
-
-
 def _clean_string_value(s: str) -> str:
-    """Clean Instagram tracking and Gmail mentions inside a string value
-    (used for strings stored INSIDE the Astro hydration JSON props)."""
+    """Clean Instagram tracking inside a string value (used for strings stored
+    INSIDE the Astro hydration JSON props).
+
+    Note: `summer.jiang.up@gmail.com` is intentionally preserved — it's a real
+    secondary contact email displayed in the footer.
+    """
     if not isinstance(s, str):
         return s
     if "igsh=" in s or "utm_source=qr" in s:
@@ -769,8 +768,6 @@ def _clean_string_value(s: str) -> str:
             CLEAN_INSTAGRAM,
             s,
         )
-    if "summer.jiang.up@gmail.com" in s:
-        s = _GMAIL_RE.sub("", s)
     return s
 
 
