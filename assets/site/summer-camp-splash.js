@@ -20,7 +20,7 @@
     root.removeAttribute("hidden");
     root.classList.add("upa-summer-splash--visible");
     lockScroll(true);
-    var btn = root.querySelector(".upa-summer-splash__close");
+    var btn = root.querySelector(".upa-summer-splash__cta") || root.querySelector(".upa-summer-splash__close");
     if (btn) btn.focus({ preventScroll: true });
   }
 
